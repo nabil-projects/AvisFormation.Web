@@ -1,0 +1,187 @@
+﻿@model AvisFormation.Web.ViewModels.FormationViewModel
+
+@{
+    ViewData["Title"] = Model.Titre;
+}
+
+<div class="container mt-4">
+
+    <!-- ===== BLOCK 1 : Informations de la formation ===== -->
+    <div class="row">
+        <!-- IMAGE -->
+        <div class="col-md-5">
+            <img src="/images/@Model.ImageURL"
+                 class="img-fluid rounded shadow-sm"
+                 style="max-height:320px; object-fit:cover;" />
+        </div>
+
+        <!-- DETAILS -->
+        <div class="col-md-7">
+
+            <h2 class="fw-bold">@Model.Titre</h2>
+
+            @if (Model.EstPopulaire)
+            {
+                <span class="badge bg-warning text-dark mb-2">
+                    🔥 Populaire
+                </span>
+            }
+
+            <p class="fs-5 text-muted">@Model.Description</p>
+
+            <!-- PRIX -->
+            <h4 class="text-primary fw-bold">@Model.Prix MAD</h4>
+
+            <!-- NOTE -->
+            <div class="mt-2 mb-3">
+                <strong>Note moyenne :</strong>
+
+                @if (Model.NombreAvis > 0)
+                {
+                    <span class="ms-2 text-warning">
+
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            if (i <= Math.Round(Model.MoyenneAvis))
+                            {
+                                <i class="bi bi-star-fill"></i>
+                            }
+                            else
+                            {
+                                <i class="bi bi-star"></i>
+                            }
+                        }
+                    </span>
+                    <small class="text-muted"> (@Model.NombreAvis avis)</small>
+                }
+                else
+                {
+                    <span class="text-muted ms-2">Aucun avis</span>
+                }
+            </div>
+
+            <!-- LIEN EXTERNE -->
+            @if (!string.IsNullOrEmpty(Model.Lien))
+            {
+                <a href="@Model.Lien" target="_blank"
+                   class="btn btn-outline-primary mb-2">
+                    <i class="bi bi-box-arrow-up-right"></i> Visiter le site
+                </a>
+            }
+
+            <div class="mt-4">
+                <a href="/Formation" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Retour
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+    <hr class="my-5" />
+
+    <!-- ===== BLOCK 2 : Liste des avis ===== -->
+    <h3 class="fw-bold mb-4">Avis des stagiaires</h3>
+
+    @if (Model.Avis.Count == 0)
+    {
+        <p class="text-muted">Aucun avis pour cette formation.</p>
+    }
+    else
+    {
+        @foreach (var a in Model.Avis)
+        {
+            <div class="p-3 mb-3 border rounded bg-light shadow-sm">
+
+                <div class="d-flex justify-content-between">
+                    <strong>@a.Auteur</strong>
+                    <small class="text-muted">@a.DateAvis.ToShortDateString()</small>
+                </div>
+
+                <div class="text-warning">
+                    @for (int i = 1; i <= a.Note; i++)
+                    {
+                        <i class="bi bi-star-fill"></i>
+                    }
+                </div>
+
+                <p class="mb-0">@a.Commentaire</p>
+
+            </div>
+        }
+    }
+
+    <a href="/Avis/Create?formationId=@Model.Id"
+       class="btn btn-primary mt-3">
+        <i class="bi bi-plus-circle"></i> Ajouter un avis
+    </a>
+
+    <hr class="my-5" />
+
+
+    <!-- ===== BLOCK 3 : Formations similaires ===== -->
+    <h3 class="fw-bold text-secondary mb-4">Formations similaires</h3>
+
+    @if (Model.FormationsSimilaires == null || !Model.FormationsSimilaires.Any())
+    {
+        <p class="text-muted">Aucune formation similaire disponible.</p>
+    }
+    else
+    {
+        <div class="row g-4">
+
+            @foreach (var f in Model.FormationsSimilaires)
+            {
+                <div class="col-md-4">
+                    <div class="card shadow-sm h-100 border-0 formation-card">
+
+                        <img src="/images/@f.ImageURL"
+                             class="card-img-top"
+                             style="height:180px; object-fit:cover;" />
+
+                        <div class="card-body">
+
+                            <h5 class="fw-bold">@f.Titre</h5>
+
+                            <!-- Note -->
+                            <div class="text-warning mb-2">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    if (i <= Math.Round(f.MoyenneAvis))
+                                    {
+                                        <i class="bi bi-star-fill"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-star"></i>
+                                    }
+                                }
+                                <small class="text-muted">(@f.NombreAvis)</small>
+                            </div>
+
+                            <p class="fw-bold text-primary">@f.Prix MAD</p>
+
+                            <a href="/Formation/DetailsFormation/@f.Id"
+                               class="btn btn-outline-primary w-100">
+                                Voir détails
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            }
+
+        </div>
+    }
+
+</div>
+
+
+<!-- ===== CSS OPTIONNEL ===== -->
+<style>
+    .formation-card:hover {
+        transform: translateY(-5px);
+        transition: 0.2s ease-in-out;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+</style>
